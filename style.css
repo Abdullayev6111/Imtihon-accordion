@@ -1,0 +1,156 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+body {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #c9a17b;
+    flex-direction: column;
+    font-family: poppins;
+}
+
+@font-face {
+    font-family: poppins;
+    src: url(./fonts/Poppins-Medium.ttf);
+}
+
+header {
+    width: 90%;
+    height: 10vh;
+    background-color: #8b5a2b;
+    border-radius: 10px;
+    display: flex;
+    justify-content: space-between;
+    padding: 20px 30px;
+    margin-bottom: 20px;
+    align-items: center;
+}
+
+header h1 {
+    color: white;
+    font-size: 27px;
+}
+
+header button {
+    border: none;
+    padding: 10px 30px;
+    border-radius: 10px;
+    background-color: #2563eb;
+    color: white;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    cursor: pointer;
+}
+
+.accordion {
+    display: flex;
+    width: 90%;
+    height: 80vh;
+    overflow: hidden;
+    border-radius: 10px;
+}
+.panel {
+    flex: 1;
+    background-color: #8b5a2b;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    cursor: pointer;
+    transition: flex 0.5s ease, background 0.5s ease;
+    position: relative;
+}
+.panel h2 {
+    font-size: 24px;
+    margin-top: 10px;
+}
+.panel p {
+    text-align: center;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+.panel .buttons {
+    display: flex;
+    gap: 10px;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+.panel button {
+    padding: 14px 28px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 700;
+}
+.edit {
+    background-color: #4caf50;
+    color: white;
+}
+.delete {
+    background-color: #f44336;
+    color: white;
+}
+.panel.active {
+    flex: 4;
+    background-color: #6b4226;
+}
+.panel.active p,
+.panel.active .buttons {
+    opacity: 1;
+}
+
+.modal {
+    display: block;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    transform: translateY(-100vh);
+    background-color: rgba(0, 0, 0, 0.7);
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 200px auto;
+    padding: 20px;
+    border-radius: 5px;
+    width: 400px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    transform: translateY(-100vh);
+    transition: transform 0.3s ease;
+}
+
+.modal-content input {
+    padding: 8px;
+    font-size: 16px;
+    outline: none;
+    border-radius: 8px;
+    border: 1px solid gray;
+}
+
+.modal-content button {
+    background-color: #0066ff;
+    color: white;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.close {
+    align-self: flex-end;
+    font-size: 24px;
+    cursor: pointer;
+}

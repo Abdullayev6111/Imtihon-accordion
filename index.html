@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="stylesheet" href="style.css" />
+        <title>Accordion</title>
+        <link rel="stylesheet" href="./style.css" />
+    </head>
+    <body>
+        <header>
+            <h1>Accordion</h1>
+            <button class="addBtn" id="addBtn">Add</button>
+        </header>
+        <div class="accordion" id="accordion"></div>
+        <div id="modal" class="modal">
+            <div class="modal-content">
+                <span id="close" class="close">&times;</span>
+                <h2>Add New Question</h2>
+                <input
+                    type="text"
+                    id="questionInput"
+                    placeholder="Enter question"
+                />
+                <input
+                    type="text"
+                    id="answerInput"
+                    placeholder="Enter answer"
+                />
+                <button id="addToAccordionBtn">Add to Accordion</button>
+            </div>
+        </div>
+        <script src="./script.js"></script>
+    </body>
+</html>
