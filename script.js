@@ -51,12 +51,12 @@ async function createPost() {
         else await fetchData();
 
         renderData();
-        closeModal();
         questionInput.value = "";
         answerInput.value = "";
     } catch (error) {
         console.log("Xatolik: " + error.message);
     }
+    closeModal();
 }
 
 let posts = [];
