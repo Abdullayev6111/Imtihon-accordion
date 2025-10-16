@@ -10,6 +10,7 @@ const answerInput = document.getElementById("answerInput");
 window.addEventListener("DOMContentLoaded", () => {
     fetchData();
     getPost();
+    deletePost();
 });
 
 async function fetchData() {
@@ -73,7 +74,7 @@ function renderData() {
     <p>${item.answer}</p>
     <div class = "buttons">
         <button class="edit" data-id="${item.id}">Edit</button>
-        <button class="delete" data-id="${item.id}">Delete</button>
+        <button class="delete" onclick="deletePost(${item.id})">Delete</button>
     </div>
     `;
         accordion.appendChild(panel);
@@ -137,6 +138,15 @@ function closeModal() {
 
 async function getPost() {
     let res = await fetch("https://faq-crud.onrender.com/api/faqs");
+    let { data } = await res.json();
+    posts = data;
+    renderData();
+}
+
+async function deletePost(id) {
+    let res = await fetch(`https://faq-crud.onrender.com/api/faqs/${id}`, {
+        method: "DELETE",
+    });
     let { data } = await res.json();
     posts = data;
     renderData();
