@@ -58,6 +58,7 @@ async function createPost() {
         console.log("Xatolik: " + error.message);
     }
     closeModal();
+    fetchData();
 }
 
 let posts = [];
@@ -150,4 +151,5 @@ async function deletePost(id) {
     let { data } = await res.json();
     posts = data;
     renderData();
+    fetchData();
 }
