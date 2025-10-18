@@ -1,155 +1,175 @@
 const addBtn = document.getElementById("addBtn");
 const closeBtn = document.getElementById("close");
-const accordion = document.getElementById("accordion");
-const addToAccordionBtn = document.getElementById("addToAccordionBtn");
 const modal = document.getElementById("modal");
+const addToAccordionBtn = document.getElementById("addToAccordionBtn");
 const modalContent = document.querySelector(".modal-content");
 const questionInput = document.getElementById("questionInput");
 const answerInput = document.getElementById("answerInput");
+const accordion = document.getElementById("accordion");
 
 window.addEventListener("DOMContentLoaded", () => {
+    loadingShow();
     fetchData();
-    getPost();
-    deletePost();
 });
+
+let posts = [];
+
+function createPost(item) {
+    const panel = document.createElement("div");
+    panel.className = "panel";
+    panel.dataset.id = item.id;
+
+    const title = document.createElement("h2");
+    title.textContent = item.question;
+
+    const body = document.createElement("p");
+    body.textContent = item.answer;
+
+    const buttonsWrap = document.createElement("div");
+    buttonsWrap.className = "buttons";
+
+    const editBtn = document.createElement("button");
+    editBtn.className = "edit";
+    editBtn.textContent = "Edit";
+    editBtn.dataset.action = "edit";
+
+    const deleteBtn = document.createElement("button");
+    deleteBtn.className = "delete";
+    deleteBtn.textContent = "Delete";
+    deleteBtn.dataset.action = "delete";
+
+    buttonsWrap.appendChild(editBtn);
+    buttonsWrap.appendChild(deleteBtn);
+
+    panel.appendChild(title);
+    panel.appendChild(body);
+    panel.appendChild(buttonsWrap);
+
+    panel.addEventListener("click", (e) => {
+        if (e.target.dataset.action) return;
+        document.querySelectorAll(".panel").forEach((p) => {
+            if (p !== panel) p.classList.remove("active");
+        });
+        panel.classList.toggle("active");
+    });
+
+    return panel;
+}
+
+function renderData() {
+    accordion.innerHTML = "";
+    posts.forEach((item) => {
+        accordion.appendChild(createPost(item));
+    });
+}
 
 async function fetchData() {
     try {
         const res = await fetch("https://faq-crud.onrender.com/api/faqs");
-        if (!res.ok) throw new Error("Ma'lumot topilmadi");
-        posts = await res.json();
-    } catch (error) {
-        console.log(error.message);
+        const jsonData = await res.json();
+        posts = jsonData.data;
+        renderData();
+        loadingHide();
+    } catch (err) {
+        alert("Xatolik!");
     }
-    renderData();
 }
 
-async function createPost() {
-    const newPost = {
-        question: questionInput.value.trim(),
-        answer: answerInput.value.trim(),
-    };
-
-    if (!newPost.question || !newPost.answer) {
-        alert("Iltimos, savol va javobni to'ldiring");
-        return;
-    }
-
+async function addData(question, answer) {
     try {
         const res = await fetch("https://faq-crud.onrender.com/api/faqs", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(newPost),
+            body: JSON.stringify({ question, answer }),
         });
-
-        if (!res.ok) {
-            const txt = await res.text();
-            throw new Error(`Server bilan hatolik bor`);
-        }
-
-        const created = await res.json();
-        if (created && created.id) posts.push(created);
-        else await fetchData();
-
+        const jsonData = await res.json();
+        const newItem = jsonData.data;
+        posts.push(newItem);
         renderData();
-        questionInput.value = "";
-        answerInput.value = "";
-    } catch (error) {
-        console.log("Xatolik: " + error.message);
+        hideModal();
+    } catch (err) {
+        alert("Xatolik!");
     }
-    closeModal();
-    fetchData();
 }
 
-let posts = [];
-
-function renderData() {
-    accordion.innerHTML = "";
-    posts.map((item) => {
-        const panel = document.createElement("div");
-        panel.classList.add("panel");
-        panel.setAttribute("data-id", item.id);
-
-        panel.innerHTML = `
-    <h2>${item.question}</h2>
-    <p>${item.answer}</p>
-    <div class = "buttons">
-        <button class="edit" data-id="${item.id}">Edit</button>
-        <button class="delete" onclick="deletePost(${item.id})">Delete</button>
-    </div>
-    `;
-        accordion.appendChild(panel);
-    });
-
-    accordion.addEventListener("click", (e) => {
-        const target = e.target;
-        const panel = target.closest(".panel");
-        if (!panel) return;
-
-        const id = panel.getAttribute("data-id");
-
-        if (target.tagName === "H2") {
-            document
-                .querySelectorAll(".panel")
-                .forEach((p) => p.classList.remove("active"));
-            panel.classList.add("active");
-        }
-
-        if (target.classList.contains("edit")) {
-            e.stopPropagation();
-            const answer = panel.querySelector("p");
-            const newText = prompt(
-                "Yangi javobni kiriting:",
-                answer.textContent
-            );
-            if (newText !== null && newText.trim() !== "") {
-                answer.textContent = newText;
+async function updateData(id, question, answer) {
+    try {
+        const res = await fetch(
+            `https://faq-crud.onrender.com/api/faqs/${id}`,
+            {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ question, answer }),
             }
-        }
-
-        if (target.classList.contains("delete")) {
-            e.stopPropagation();
-            const confirmDelete = confirm("Rostdan ham o'chirmoqchimisz ?");
-            if (confirmDelete) {
-                panel.remove();
-            }
-        }
-    });
+        );
+        const jsonData = await res.json();
+        const updated = jsonData.data;
+        posts = posts.map((p) => (p.id === id ? updated : p));
+        renderData();
+    } catch (err) {
+        alert("Xatolik!");
+    }
 }
 
-addBtn.addEventListener("click", () => {
-    modal.style.transform = "translateY(0vh)";
-    modalContent.style.transform = "translateY(0vh)";
-});
+async function deleteData(id) {
+    try {
+        await fetch(`https://faq-crud.onrender.com/api/faqs/${id}`, {
+            method: "DELETE",
+        });
+        posts = posts.filter((p) => p.id !== id);
+        renderData();
+    } catch (err) {
+        alert("Xatolik!");
+    }
+}
 
-closeBtn.addEventListener("click", () => {
-    closeModal();
+function showModal() {
+    modal.style.transform = "translateY(0)";
+    modalContent.style.transform = "translateY(0)";
     questionInput.value = "";
     answerInput.value = "";
-});
-
-if (addToAccordionBtn) {
-    addToAccordionBtn.addEventListener("click", createPost);
+    questionInput.focus();
 }
 
-function closeModal() {
+function hideModal() {
     modal.style.transform = "translateY(-100vh)";
     modalContent.style.transform = "translateY(-100vh)";
 }
 
-async function getPost() {
-    let res = await fetch("https://faq-crud.onrender.com/api/faqs");
-    let { data } = await res.json();
-    posts = data;
-    renderData();
-}
+addBtn.addEventListener("click", showModal);
+closeBtn.addEventListener("click", hideModal);
 
-async function deletePost(id) {
-    let res = await fetch(`https://faq-crud.onrender.com/api/faqs/${id}`, {
-        method: "DELETE",
-    });
-    let { data } = await res.json();
-    posts = data;
-    renderData();
-    fetchData();
+addToAccordionBtn.addEventListener("click", async () => {
+    const q = questionInput.value.trim();
+    const a = answerInput.value.trim();
+    if (!q) return alert("Bosh joy bo'lishi mumkin emas!");
+    addToAccordionBtn.style.pointerEvents = "none";
+    await addData(q, a);
+    addToAccordionBtn.style.pointerEvents = "auto";
+});
+
+accordion.addEventListener("click", async (e) => {
+    const btn = e.target.closest("button");
+    if (!btn) return;
+    const panel = btn.closest(".panel");
+    const id = Number(panel.dataset.id);
+    if (btn.dataset.action === "edit") {
+        const current = posts.find((p) => p.id === id);
+        const newQ = prompt("Edit question:", current.question);
+        if (newQ === null) return;
+        const newA = prompt("Edit answer:", current.answer);
+        if (newA === null) return;
+        await updateData(id, newQ.trim(), newA.trim());
+    }
+    if (btn.dataset.action === "delete") {
+        if (!confirm("Rostdan ham o'chirmoqchimisz?")) return;
+        await deleteData(id);
+    }
+});
+
+function loadingShow() {
+    document.querySelector(".loading").style.display = "block";
+}
+function loadingHide() {
+    document.querySelector(".loading").style.display = "none";
 }
